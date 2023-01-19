@@ -1,0 +1,8 @@
+pinecone-client
+openai
+openai[embeddings]
+pandas
+tiktoken
+python-dotenv
+webvtt-py
+
