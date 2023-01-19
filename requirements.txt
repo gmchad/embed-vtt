@@ -5,4 +5,4 @@ pandas
 tiktoken
 python-dotenv
 webvtt-py
-
+tqdm
