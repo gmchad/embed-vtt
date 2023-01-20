@@ -1,13 +1,13 @@
-# Embed-VTT
+# Embed-VTT ✨
 This repo uses openai embeddings and the [pinecone](https://www.pinecone.io/) vector database to
 generate and query embeddings from a VTT file.
 
 The purpose of this repo was to implement semantic search to provide an extra resource
 in understanding Andrej Karpathy's latest video: [Let's build GPT](https://www.youtube.com/watch?v=kCc8FmEb1nY&), 
-however it is general enough to use for any transcript
+however it is general enough to use for any transcript.
 
 shoutout to miguel's [yt-whisper](https://github.com/m1guelpf/yt-whisper) library for helping with the youtube
-transcription. The `data/` in this repo was generated using the `small` model
+transcription. The `data/` in this repo was generated using the `small` model.
 
 ## Setup
 ### Install
@@ -23,6 +23,12 @@ you'll need an API keys from [openai](https://beta.openai.com/) & [pinecone](htt
 `PINECONE_KEY=***`    
 ### Pinecone
 Head over to [pinecone](https://www.pinecone.io/) and create an index with dimension **1536**
+
+## Data
+the data in this repo was generated from [Let's build GPT](https://www.youtube.com/watch?v=kCc8FmEb1nY&) using [yt-whisper](https://github.com/m1guelpf/yt-whisper)
+* `/data/karpathy.vtt` - contains the raw VTT file
+* `/data/karpathy_embeddings.csv` - contains the dataframe with the embeddings. you can use this file to
+directly seed your pinecone index
 
 ## Usage
 ### Generate Embeddings from VTT file
