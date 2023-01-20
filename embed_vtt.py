@@ -42,8 +42,15 @@ class Embeddings:
     def read_vtt_file(cls, file_path):
         captions = webvtt.read(file_path)
         # TODO: so inefficient, fix this
-        text = [caption.text for caption in captions]
-        df = pd.DataFrame(text, columns=['captions'])
+        df = pd.DataFrame()
+        text, start, end = [], [], []
+        for caption in captions:
+            text.append(caption.text)
+            start.append(str(caption.start))
+            end.append(str(caption.end))
+        df["captions"] = text
+        df["start"] = start
+        df["end"] = end
         return df
 
     @classmethod
@@ -63,6 +70,7 @@ class Embeddings:
             lambda x: get_embedding(x, engine=self._embedding_model))
         
     def save_embeddings_to_csv(self, file_name):
+        print(f"Saving embeddings to {file_name}")
         self._df.to_csv(file_name)
 
     def upload_embeddings(self):
@@ -77,21 +85,23 @@ class Embeddings:
         df = self._df
 
         example_data_generator = map(lambda i: (
-            f'id-{i}', df["embedding"][i], {"captions": df["captions"][i]}), range(len(df["embedding"])))
+            f'id-{i}',
+            df["embedding"][i],
+            {"captions": df["captions"][i], "time": f'{df["start"][i]}-{df["end"][i]}'}
+        ), range(len(df["embedding"])))
 
-        for ids_vectors_chunk in chunks(example_data_generator, batch_size=100):
-            print("uploading chunk")
+        for ids_vectors_chunk in tqdm(chunks(example_data_generator, batch_size=100)):
             self._pinecone_index.upsert(vectors=ids_vectors_chunk)
 
     def query_embeddings(self, query, top_k=5):
-        embed = openai.Embedding.create(input=query, engine="text-embedding-ada-002")['data'][0]['embedding']
+        embed = openai.Embedding.create(input=query, engine=self._embedding_model)['data'][0]['embedding']
         # query, returning the top 5 most similar results
         res = self._pinecone_index.query([embed], top_k=top_k, include_metadata=True)
         for match in res['matches']:
-            print(f"{match['score']:.2f}: {match['metadata']['captions']}")
+            print(f"{match['score']:.2f}: {match['metadata']['captions']} {match['metadata']['time']}")
 
 def main():
-    parser = argparse.ArgumentParser('Embed-Karpathy')
+    parser = argparse.ArgumentParser('embed_vtt')
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     generate = subparsers.add_parser('generate', help='generate embeddings')
@@ -107,9 +117,8 @@ def main():
     if args.command == "generate":
         df = Embeddings.read_vtt_file(args.vtt_file)
         embed = Embeddings(df)
-        embed.get_encodings()
         embed.get_embeddings()
-        embed.save_embeddings_to_csv("embeddings.csv")
+        embed.save_embeddings_to_csv(f"{args.vtt_file.split('.')[0]}_embeddings.csv")
     elif args.command == "upload":
         df = Embeddings.read_csv_embedding_file(args.csv_embedding_file)
         embed = Embeddings(df)
