@@ -21,7 +21,7 @@ cp .env.sample .env
 you'll need an API keys from [openai](https://beta.openai.com/) & [pinecone](https://www.pinecone.io/)   
 `OPENAI_KEY=***`    
 `PINECONE_KEY=***`    
-`PINECODE_ENVIRONMENT=***` (Optional)
+`PINECONE_ENVIRONMENT=***` (Optional)
 ### Pinecone
 Head over to [pinecone](https://www.pinecone.io/) and create an index with dimension **1536**
 
