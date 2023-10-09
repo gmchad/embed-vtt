@@ -30,11 +30,12 @@ class Embeddings:
         try:
             self._openai_key = os.getenv('OPENAI_KEY')
             self._pinecone_key = os.getenv('PINECONE_KEY')
+            self._pinecone_environment = os.getenv('PINECONE_ENVIRONMENT', 'us-west1-gcp')
             openai.api_key = self._openai_key
         except:
             raise EmbeddingException("No API keys found")
         # init pinecone
-        pinecone.init(api_key=self._pinecone_key, environment="us-west1-gcp")
+        pinecone.init(api_key=self._pinecone_key, environment=self._pinecone_environment)
         # use first index in list
         self._pinecone_index = pinecone.Index(pinecone.list_indexes()[0])
             
